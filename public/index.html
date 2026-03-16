@@ -323,7 +323,10 @@
     }
 
     async function carregarModulos() {
+        // Usando caminho relativo para o Vercel identificar a rota interna
         const res = await fetch('/api/modulos');
+        if (!res.ok) return console.error("Erro ao carregar módulos");
+        
         dadosGlobaisModulos = await res.json();
         
         let selectHtml = '<option value="">Selecione um módulo...</option>';
@@ -340,6 +343,21 @@
         document.getElementById('listaModulosExport').innerHTML = exportHtml;
 
         renderizarListaAvaliacoes(); 
+    }
+
+    async function salvarModulo() {
+        const nome = document.getElementById('nomeModulo').value;
+        if(!nome) return alert('Por favor, digite o nome do módulo.');
+        
+        await fetch('/api/modulos', {
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ nome })
+        });
+        
+        document.getElementById('nomeModulo').value = '';
+        alert('Módulo cadastrado com sucesso!');
+        carregarModulos();
     }
 
     async function salvarModulo() {
