@@ -246,12 +246,15 @@
 
         <div id="abaExportar" class="tab-content">
             <div class="card" style="border-top-color: var(--senac-green);">
-                <h2 style="color: var(--senac-green);">Gerar Planilha Excel</h2>
+                <h2 style="color: var(--senac-green);">Gerar Documentos</h2>
                 <p style="color: #666; font-size: 14px; margin-top:-10px; margin-bottom: 20px;">Selecione os módulos que deseja unificar no documento final.</p>
                 
                 <div id="listaModulosExport" style="margin-bottom: 25px;"></div>
                 
-                <button class="btn-success" onclick="exportarExcel()">Baixar Planilha de Avaliação</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-success" onclick="exportarExcel()">Baixar Planilha (Excel)</button>
+                    <button class="btn-primary" style="background: var(--senac-pink); font-size: 16px; padding: 15px;" onclick="exportarPDF()">Baixar Documento (PDF)</button>
+                </div>
             </div>
         </div>
 
@@ -483,6 +486,23 @@
         const a = document.createElement('a');
         a.href = url;
         a.download = 'Avaliacoes_Competicoes_Senac.xlsx';
+        a.click();
+    }
+
+    async function exportarPDF() {
+        const checkboxes = document.querySelectorAll('.chk-export:checked');
+        const moduloIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        if(moduloIds.length === 0) return alert('Selecione pelo menos um módulo para exportar.');
+        
+        const res = await fetch('/api/export/pdf', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ moduloIds })
+        });
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Avaliacoes_Competicoes_Senac.pdf';
         a.click();
     }
 

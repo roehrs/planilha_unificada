@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
     "cors": "^2.8.6",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
+    "pdfkit-table": "^0.1.99",
     "prisma": "^5.22.0"
   }
 }
