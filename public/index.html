@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competições Senac | Gerenciador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* CORES OFICIAIS DO MANUAL DA MARCA SENAC 2025 */
+        :root {
+            --senac-blue: #1331a1;
+            --senac-pink: #F31366;
+            --senac-orange: #F44528;
+            --senac-yellow: #F8b62F;
+            --senac-green: #a2ca02;
+            --bg-color: #f4f7f6;
+            --text-dark: #333333;
+            --card-bg: #ffffff;
+        }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: var(--bg-color); 
+            color: var(--text-dark); 
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--senac-blue);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        header h1 { margin: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        header p { margin: 5px 0 0 0; font-weight: 400; font-size: 14px; opacity: 0.9; }
+
+        /* NAVEGAÇÃO POR ABAS (TABS) */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 4px solid transparent;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .tab-btn:hover { color: var(--senac-blue); }
+        .tab-btn.active {
+            color: var(--senac-blue);
+            border-bottom: 4px solid var(--senac-pink);
+        }
+
+        /* CONTAINER E CARDS */
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px 40px 20px; }
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            margin-bottom: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-top: 5px solid var(--senac-blue);
+        }
+        .card h2 { margin-top: 0; color: var(--senac-blue); font-weight: 800; font-size: 22px; }
+
+        /* FORMULÁRIOS */
+        label { font-weight: 600; margin-top: 15px; display: block; color: #555; font-size: 14px; }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0 15px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: 'Montserrat', sans-serif;
+            transition: 0.3s;
+            background-color: #fafafa;
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--senac-blue); 
+            outline: none; 
+            background-color: white;
+            box-shadow: 0 0 5px rgba(19, 49, 161, 0.2);
+        }
+        .hidden { display: none; }
+
+        /* BOTÕES */
+        button { 
+            padding: 12px 20px; 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            border: none; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            transition: 0.3s; 
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary { background: var(--senac-blue); color: white; width: 100%; }
+        .btn-primary:hover { background: #0e247a; }
+        
+        .btn-success { background: var(--senac-green); color: white; width: 100%; font-size: 16px; padding: 15px;}
+        .btn-success:hover { background: #88aa02; }
+        
+        .btn-yellow { background: var(--senac-yellow); color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); width: auto; padding: 8px 15px; margin-right: 5px;} 
+        .btn-yellow:hover { background: #e0a42a; }
+        
+        .btn-red { background: var(--senac-pink); color: white; width: auto; padding: 8px 15px;} 
+        .btn-red:hover { background: #d11058; }
+
+        .btn-outline-red { background: transparent; color: var(--senac-pink); border: 2px solid var(--senac-pink); width: 100%; margin-top: 15px;}
+        .btn-outline-red:hover { background: var(--senac-pink); color: white; }
+
+        /* LISTAS */
+        .flex-container { display: flex; gap: 15px; align-items: center; }
+        .list-item { 
+            background: #fff; 
+            border-left: 5px solid var(--senac-yellow); 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            border-radius: 6px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .item-info { width: 70%; }
+        .item-info strong { color: var(--senac-blue); font-size: 18px;}
+        .item-actions { width: 30%; text-align: right; }
+
+        .export-item {
+            display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .export-item:hover { border-color: var(--senac-blue); }
+        .export-item input { width: auto; margin: 0 15px 0 0; transform: scale(1.3); accent-color: var(--senac-blue);}
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(19, 49, 161, 0.5); backdrop-filter: blur(3px); }
+        .modal-content { background-color: #fff; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: var(--senac-pink); }
+
+        /* ALERTAS / DICAS */
+        .alert-box { background-color: #fff0f4; border-left: 4px solid var(--senac-pink); padding: 12px; border-radius: 4px; color: var(--senac-pink); font-size: 13px; font-weight: 600; margin-bottom: 15px;}
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Competições Senac</h1>
+        <p>Gerenciador de Avaliações e Critérios</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="abrirAba(event, 'abaModulos')">📂 Módulos</button>
+        <button class="tab-btn" onclick="abrirAba(event, 'abaCriterios')">📝 Critérios</button>
+        <button class="tab-btn" onclick="abrirAba(event, 'abaExportar')">📊 Exportar</button>
+    </div>
+
+    <div class="container">
+        
+        <div id="abaModulos" class="tab-content active">
+            <div class="card">
+                <h2>Cadastrar Novo Módulo</h2>
+                <p style="color: #666; font-size: 14px; margin-top:-10px;">Ex: Cabeleireiro, Cozinha, Florista...</p>
+                <input type="text" id="nomeModulo" placeholder="Digite o nome do Módulo...">
+                <button class="btn-primary" onclick="salvarModulo()">Salvar Módulo</button>
+            </div>
+
+            <div class="card" style="border-top-color: var(--senac-pink);">
+                <h2 style="color: var(--senac-pink);">Excluir Módulo</h2>
+                <p style="color: #666; font-size: 14px; margin-top:-10px;">Atenção: Apagar um módulo exclui todos os critérios dele.</p>
+                <div class="flex-container">
+                    <select id="selectModuloGerenciar" style="margin:0; flex: 1;">
+                        <option value="">Selecione um módulo...</option>
+                    </select>
+                </div>
+                <button id="btnExcluirModulo" class="btn-outline-red" onclick="excluirModuloInteiro()">Excluir Módulo Inteiro</button>
+            </div>
+        </div>
+
+        <div id="abaCriterios" class="tab-content">
+            <div class="card">
+                <h2>Novo Critério de Avaliação</h2>
+                
+                <label>Vincular ao Módulo:</label>
+                <select id="selectModulo"></select>
+                
+                <label>Tipo de Avaliação:</label>
+                <select id="tipoAvaliacao" onchange="mudarFormulario('novo')">
+                    <option value="M">Objetiva (M) - Sim/Não</option>
+                    <option value="J">Julgamento (J) - Notas 0 a 3</option>
+                </select>
+
+                <label>Aspecto (Descrição do Critério):</label>
+                <textarea id="aspecto" rows="3" placeholder="O que será avaliado?"></textarea>
+
+                <label>Nota Máxima:</label>
+                <input type="number" step="0.1" id="nota" placeholder="Ex: 1.5, 3.0">
+
+                <div id="formM_novo">
+                    <label>Detalhamento para o "Sim":</label>
+                    <textarea id="detalheM" rows="2" placeholder="O que o aluno precisa fazer para ganhar a nota?"></textarea>
+                </div>
+
+                <div id="formJ_novo" class="hidden">
+                    <div class="alert-box">
+                        ⚠️ O cálculo das notas fracionadas é automático no Excel. Digite abaixo apenas as rubricas de texto.
+                    </div>
+                    <label>Texto Nível 0:</label><textarea id="detalhe0" rows="2"></textarea>
+                    <label>Texto Nível 1:</label><textarea id="detalhe1" rows="2"></textarea>
+                    <label>Texto Nível 2:</label><textarea id="detalhe2" rows="2"></textarea>
+                    <label>Texto Nível 3 (Nota Máxima):</label><textarea id="detalhe3" rows="2"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="salvarAvaliacao()">Adicionar Critério</button>
+            </div>
+
+            <div class="card">
+                <h2>Critérios Cadastrados</h2>
+                <label>Selecione um módulo para listar seus critérios:</label>
+                <select id="selectModuloListar" onchange="renderizarListaAvaliacoes()">
+                    <option value="">Selecione...</option>
+                </select>
+                <div id="listaAvaliacoes" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <div id="abaExportar" class="tab-content">
+            <div class="card" style="border-top-color: var(--senac-green);">
+                <h2 style="color: var(--senac-green);">Gerar Planilha Excel</h2>
+                <p style="color: #666; font-size: 14px; margin-top:-10px; margin-bottom: 20px;">Selecione os módulos que deseja unificar no documento final.</p>
+                
+                <div id="listaModulosExport" style="margin-bottom: 25px;"></div>
+                
+                <button class="btn-success" onclick="exportarExcel()">Baixar Planilha de Avaliação</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <h2 style="color: var(--senac-blue); margin-top:0;">Editar Critério</h2>
+            
+            <input type="hidden" id="editId">
+            <input type="hidden" id="editModuloId">
+            
+            <label>Tipo de Avaliação:</label>
+            <select id="editTipoAvaliacao" onchange="mudarFormulario('edit')">
+                <option value="M">Objetiva (M)</option>
+                <option value="J">Julgamento (J)</option>
+            </select>
+
+            <label>Aspecto (Descrição do Critério):</label>
+            <textarea id="editAspecto" rows="3"></textarea>
+
+            <label>Nota Máxima:</label>
+            <input type="number" step="0.1" id="editNota">
+
+            <div id="formM_edit">
+                <label>Detalhamento (Sim/Não):</label>
+                <textarea id="editDetalheM" rows="2"></textarea>
+            </div>
+
+            <div id="formJ_edit" class="hidden">
+                <label>Nível 0:</label><textarea id="editDetalhe0" rows="2"></textarea>
+                <label>Nível 1:</label><textarea id="editDetalhe1" rows="2"></textarea>
+                <label>Nível 2:</label><textarea id="editDetalhe2" rows="2"></textarea>
+                <label>Nível 3:</label><textarea id="editDetalhe3" rows="2"></textarea>
+            </div>
+
+            <button class="btn-primary" onclick="salvarEdicao()" style="margin-top: 20px;">Salvar Alterações</button>
+        </div>
+    </div>
+
+<script>
+    let dadosGlobaisModulos = []; 
+
+    // Lógica das Abas
+    function abrirAba(evt, nomeAba) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) { contents[i].classList.remove("active"); }
+        
+        let btns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < btns.length; i++) { btns[i].classList.remove("active"); }
+        
+        document.getElementById(nomeAba).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    function mudarFormulario(contexto) {
+        const tipo = document.getElementById(contexto === 'novo' ? 'tipoAvaliacao' : 'editTipoAvaliacao').value;
+        if(tipo === 'M') {
+            document.getElementById(`formM_${contexto}`).classList.remove('hidden');
+            document.getElementById(`formJ_${contexto}`).classList.add('hidden');
+        } else {
+            document.getElementById(`formM_${contexto}`).classList.add('hidden');
+            document.getElementById(`formJ_${contexto}`).classList.remove('hidden');
+        }
+    }
+
+    async function carregarModulos() {
+        const res = await fetch('/api/modulos');
+        dadosGlobaisModulos = await res.json();
+        
+        let selectHtml = '<option value="">Selecione um módulo...</option>';
+        let exportHtml = '';
+        
+        dadosGlobaisModulos.forEach(m => {
+            selectHtml += `<option value="${m.id}">${m.nome}</option>`;
+            exportHtml += `<label class="export-item"><input type="checkbox" value="${m.id}" class="chk-export" checked> <span>${m.nome}</span></label>`;
+        });
+        
+        document.getElementById('selectModulo').innerHTML = selectHtml;
+        document.getElementById('selectModuloGerenciar').innerHTML = selectHtml;
+        document.getElementById('selectModuloListar').innerHTML = selectHtml;
+        document.getElementById('listaModulosExport').innerHTML = exportHtml;
+
+        renderizarListaAvaliacoes(); 
+    }
+
+    async function salvarModulo() {
+        const nome = document.getElementById('nomeModulo').value;
+        if(!nome) return alert('Por favor, digite o nome do módulo.');
+        await fetch('/api/modulos', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ nome })
+        });
+        document.getElementById('nomeModulo').value = '';
+        alert('Módulo cadastrado com sucesso!');
+        carregarModulos();
+    }
+
+    async function salvarAvaliacao() {
+        const moduloId = parseInt(document.getElementById('selectModulo').value);
+        if(!moduloId) return alert('Selecione um módulo primeiro!');
+
+        const data = {
+            moduloId: moduloId,
+            tipo: document.getElementById('tipoAvaliacao').value,
+            aspecto: document.getElementById('aspecto').value,
+            nota: document.getElementById('nota').value,
+            detalheM: document.getElementById('detalheM').value,
+            detalhe0: document.getElementById('detalhe0').value,
+            detalhe1: document.getElementById('detalhe1').value,
+            detalhe2: document.getElementById('detalhe2').value,
+            detalhe3: document.getElementById('detalhe3').value,
+        };
+
+        if(!data.aspecto || !data.nota) return alert("Aspecto e Nota Máxima são obrigatórios.");
+
+        await fetch('/api/avaliacoes', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        alert('Critério salvo com sucesso!');
+        document.querySelectorAll('#aspecto, #nota, #detalheM, #detalhe0, #detalhe1, #detalhe2, #detalhe3').forEach(t => t.value = '');
+        carregarModulos();
+    }
+
+    function renderizarListaAvaliacoes() {
+        const moduloId = parseInt(document.getElementById('selectModuloListar').value);
+        const divLista = document.getElementById('listaAvaliacoes');
+        
+        if(!moduloId) { 
+            divLista.innerHTML = '<p style="color:#888; text-align:center;">Selecione um módulo acima para ver os critérios.</p>'; 
+            return; 
+        }
+
+        const modulo = dadosGlobaisModulos.find(m => m.id === moduloId);
+        if(!modulo.avaliacoes || modulo.avaliacoes.length === 0) {
+            divLista.innerHTML = '<p style="color:#888; text-align:center;">Nenhum critério cadastrado ainda neste módulo.</p>';
+            return;
+        }
+
+        let html = '';
+        modulo.avaliacoes.forEach(av => {
+            let corBorda = av.tipo === 'M' ? 'var(--senac-blue)' : 'var(--senac-pink)';
+            html += `
+                <div class="list-item" style="border-left-color: ${corBorda};">
+                    <div class="item-info">
+                        <strong>[${av.tipo}]</strong> ${av.nota}pts <br>
+                        <span style="font-size: 14px; color: #555;">${av.aspecto}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-yellow" onclick='abrirModal(${JSON.stringify(av).replace(/'/g, "&#39;")})'>✏️</button>
+                        <button class="btn-red" onclick="excluirAvaliacao(${av.id})">🗑️</button>
+                    </div>
+                </div>
+            `;
+        });
+        divLista.innerHTML = html;
+    }
+
+    async function excluirModuloInteiro() {
+        const moduloId = document.getElementById('selectModuloGerenciar').value;
+        if(!moduloId) return alert('Selecione um módulo para excluir.');
+
+        const confirmacao = confirm("⚠️ ATENÇÃO: Tem certeza que deseja excluir este MÓDULO INTEIRO?\nIsso apagará todas as avaliações dentro dele de forma irreversível!");
+        
+        if(confirmacao) {
+            await fetch(`/api/modulos/${moduloId}`, { method: 'DELETE' });
+            alert("Módulo e critérios excluídos com sucesso!");
+            carregarModulos();
+        }
+    }
+
+    function abrirModal(av) {
+        document.getElementById('editId').value = av.id;
+        document.getElementById('editModuloId').value = av.moduloId;
+        document.getElementById('editTipoAvaliacao').value = av.tipo;
+        document.getElementById('editAspecto').value = av.aspecto;
+        document.getElementById('editNota').value = av.nota;
+        document.getElementById('editDetalheM').value = av.detalheM || '';
+        document.getElementById('editDetalhe0').value = av.detalhe0 || '';
+        document.getElementById('editDetalhe1').value = av.detalhe1 || '';
+        document.getElementById('editDetalhe2').value = av.detalhe2 || '';
+        document.getElementById('editDetalhe3').value = av.detalhe3 || '';
+
+        mudarFormulario('edit');
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    function fecharModal() { document.getElementById('editModal').style.display = 'none'; }
+
+    async function salvarEdicao() {
+        const id = document.getElementById('editId').value;
+        const data = {
+            tipo: document.getElementById('editTipoAvaliacao').value,
+            aspecto: document.getElementById('editAspecto').value,
+            nota: document.getElementById('editNota').value,
+            detalheM: document.getElementById('editDetalheM').value,
+            detalhe0: document.getElementById('editDetalhe0').value,
+            detalhe1: document.getElementById('editDetalhe1').value,
+            detalhe2: document.getElementById('editDetalhe2').value,
+            detalhe3: document.getElementById('editDetalhe3').value,
+        };
+        await fetch(`/api/avaliacoes/${id}`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        fecharModal();
+        carregarModulos(); 
+    }
+
+    async function excluirAvaliacao(id) {
+        if(!confirm("Tem certeza que deseja excluir este critério?")) return;
+        await fetch(`/api/avaliacoes/${id}`, { method: 'DELETE' });
+        carregarModulos();
+    }
+
+    async function exportarExcel() {
+        const checkboxes = document.querySelectorAll('.chk-export:checked');
+        const moduloIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        if(moduloIds.length === 0) return alert('Selecione pelo menos um módulo para exportar.');
+        
+        const res = await fetch('/api/export', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ moduloIds })
+        });
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Avaliacoes_Competicoes_Senac.xlsx';
+        a.click();
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('editModal');
+        if (event.target == modal) fecharModal();
+    }
+
+    carregarModulos();
+</script>
+</body>
+</html>

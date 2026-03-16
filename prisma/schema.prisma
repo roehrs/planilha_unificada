@@ -1,0 +1,35 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Modulo {
+  id         Int         @id @default(autoincrement())
+  nome       String
+  avaliacoes Avaliacao[]
+}
+
+model Avaliacao {
+  id           Int    @id @default(autoincrement())
+  moduloId     Int
+  modulo       Modulo @relation(fields: [moduloId], references: [id])
+  
+  tipo         String // "J" ou "M"
+  aspecto      String
+  nota         Float
+
+  // Detalhamento para Objetiva (M)
+  detalheM     String?
+
+  // Detalhamentos para Julgamento (J)
+  detalhe0     String?
+  detalhe1     String?
+  detalhe2     String?
+  detalhe3     String?
+}
