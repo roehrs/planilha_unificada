@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); // Biblioteca obrigatória para o Vercel achar o HTML
 const ExcelJS = require('exceljs');
-const PDFDocument = require('pdfkit-table'); // Nova biblioteca de PDF
+const PDFDocument = require('pdfkit-table'); 
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -9,7 +10,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// Configuração corrigida para o Vercel achar a pasta public e o index.html
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.get('/api/modulos', async (req, res) => {
     const modulos = await prisma.modulo.findMany({ include: { avaliacoes: true } });
@@ -29,7 +35,7 @@ app.post('/api/avaliacoes', async (req, res) => {
     res.json(avaliacao);
 });
 
-// --- ROTA DE EXPORTAR EXCEL (Mantida igual) ---
+// --- ROTA DE EXPORTAR EXCEL ---
 app.post('/api/export', async (req, res) => {
     const { moduloIds } = req.body; 
     if (!moduloIds || moduloIds.length === 0) return res.status(400).send('Nenhum módulo selecionado.');
@@ -89,7 +95,7 @@ app.post('/api/export', async (req, res) => {
     res.end();
 });
 
-// --- NOVA ROTA: EXPORTAR PDF ---
+// --- ROTA DE EXPORTAR PDF ---
 app.post('/api/export/pdf', async (req, res) => {
     const { moduloIds } = req.body;
     if (!moduloIds || moduloIds.length === 0) return res.status(400).send('Nenhum módulo selecionado.');
@@ -99,7 +105,6 @@ app.post('/api/export/pdf', async (req, res) => {
         include: { avaliacoes: true }
     });
 
-    // Cria o documento PDF
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
 
     res.setHeader('Content-Type', 'application/pdf');
@@ -107,12 +112,10 @@ app.post('/api/export/pdf', async (req, res) => {
 
     doc.pipe(res);
 
-    // Título Principal
     doc.fontSize(22).fillColor('#1331a1').text('COMPETIÇÕES SENAC', { align: 'center' });
     doc.fontSize(12).fillColor('#666666').text('Caderno de Avaliação Objetiva e Subjetiva', { align: 'center' });
     doc.moveDown(2);
 
-    // Estruturando as tabelas por módulo
     for (const modulo of modulos) {
         const tableRows = [];
 
@@ -141,7 +144,6 @@ app.post('/api/export/pdf', async (req, res) => {
             rows: tableRows
         };
 
-        // Desenhando a tabela no PDF
         await doc.table(tableConfig, {
             prepareHeader: () => doc.font("Helvetica-Bold").fontSize(9).fillColor('#1331a1'),
             prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
@@ -182,6 +184,8 @@ app.delete('/api/modulos/:id', async (req, res) => {
     } catch (error) { res.status(500).json({ error: "Erro ao excluir o módulo." }); }
 });
 
+// Exporta o app para o Vercel conseguir rodar
+module.exports = app;
 
 // Mantém o app.listen apenas se você for rodar localmente no seu computador
 if (require.main === module) {
